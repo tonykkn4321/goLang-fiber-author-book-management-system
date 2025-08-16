@@ -25,11 +25,7 @@ func ConnectDB() (*gorm.DB, error) {
     }
 
     // PostgreSQL DSN format
-    dsn := fmt.Sprintf(
-    "host=%s user=%s password=%s dbname=%s port=%s sslmode=disable",
-    host, user, password, dbname, port,
-    )
-
+    dsn := os.Getenv("DATABASE_URL")
 
     db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
     if err != nil {
