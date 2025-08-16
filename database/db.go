@@ -2,11 +2,10 @@ package database
 
 import (
     "fmt"
+    "log"
     "os"
 
-    "github.com/joho/godotenv"
     "gorm.io/driver/postgres"
-    // "gorm.io/driver/mysql"
     "gorm.io/gorm"
     "goLang-fiber-author-book-management-system/models"
 )
@@ -14,36 +13,35 @@ import (
 var DB *gorm.DB
 
 func ConnectDB() (*gorm.DB, error) {
-    env := os.Getenv("APP_ENV")
-    if env == "" {
-        env = "development"
+    // Use Railway-provided environment variables directly
+    host := os.Getenv("PGHOST")
+    user := os.Getenv("PGUSER")
+    password := os.Getenv("PGPASSWORD")
+    dbname := os.Getenv("PGDATABASE")
+    port := os.Getenv("PGPORT")
+
+    if host == "" || user == "" || password == "" || dbname == "" || port == "" {
+        log.Println("⚠️ Missing one or more required PostgreSQL environment variables")
     }
 
-    err := godotenv.Load(".env." + env)
-    if err != nil {
-        fmt.Printf("Warning: .env.%s file not found, relying on system environment variables\n", env)
-    }
+    // PostgreSQL DSN format
+    dsn := fmt.Sprintf(
+        "host=%s user=%s password=%s dbname=%s port=%s sslmode=disable",
+        host, user, password, dbname, port,
+    )
 
-    user := os.Getenv("DB_USER")
-    pass := os.Getenv("DB_PASS")
-    host := os.Getenv("DB_HOST")
-    port := os.Getenv("DB_PORT")
-    name := os.Getenv("DB_NAME")
-
-    dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
-        user, pass, host, port, name)
-
-    // db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
     db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
     if err != nil {
-        return nil, err
+        return nil, fmt.Errorf("❌ failed to connect to database: %w", err)
     }
 
+    // Auto-migrate models
     err = db.AutoMigrate(&models.Author{}, &models.Book{})
     if err != nil {
-        return nil, err
+        return nil, fmt.Errorf("❌ failed to migrate models: %w", err)
     }
 
+    log.Println("✅ Connected to PostgreSQL and migrated models")
     DB = db
     return db, nil
 }
