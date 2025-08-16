@@ -1,8 +1,15 @@
+// models/book.go
 package models
 
+import "gorm.io/gorm"
+
 type Book struct {
-    ID       uint   `json:"id" gorm:"primaryKey"`
-    Title    string `json:"title"`
-    Year     int    `json:"year"`
-    AuthorID uint   `json:"author_id"`
+    gorm.Model
+    Title    string
+    AuthorID uint
+}
+
+// TableName overrides the default table name
+func (Book) TableName() string {
+    return "books"
 }
