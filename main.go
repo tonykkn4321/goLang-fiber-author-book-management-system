@@ -28,7 +28,7 @@ func main() {
     // Create Fiber app
     app := fiber.New()
 
-    // Configure CORS based on environment
+    // Configure CORS
     allowedOrigin := os.Getenv("CORS_ORIGIN")
     if allowedOrigin == "" {
         allowedOrigin = "http://localhost:8000"
@@ -44,20 +44,29 @@ func main() {
     // Connect to DB
     db, err := database.ConnectDB()
     if err != nil {
-        log.Fatalf("Failed to connect to database: %v", err)
+        log.Fatalf("❌ Failed to connect to database: %v", err)
     }
     database.DB = db
+    fmt.Println("✅ Connected to database")
+
+    // Health check route
+    app.Get("/health", func(c *fiber.Ctx) error {
+        return c.JSON(fiber.Map{
+            "status": "ok",
+            "env":    env,
+        })
+    })
 
     // Register routes
     routes.AuthorRoutes(app)
     routes.BookRoutes(app)
 
-    // Start server on configured port
+    // Start server
     port := os.Getenv("PORT")
     if port == "" {
         port = "3000"
     }
 
-    log.Printf("Running in %s mode on port %s", env, port)
+    log.Printf("🚀 Running in %s mode on port %s", env, port)
     log.Fatal(app.Listen(":" + port))
 }

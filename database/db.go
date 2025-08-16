@@ -5,7 +5,8 @@ import (
     "os"
 
     "github.com/joho/godotenv"
-    "gorm.io/driver/mysql"
+    "gorm.io/driver/postgres"
+    // "gorm.io/driver/mysql"
     "gorm.io/gorm"
     "goLang-fiber-author-book-management-system/models"
 )
@@ -32,7 +33,8 @@ func ConnectDB() (*gorm.DB, error) {
     dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
         user, pass, host, port, name)
 
-    db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+    // db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+    db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
     if err != nil {
         return nil, err
     }
