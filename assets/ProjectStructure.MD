@@ -19,6 +19,7 @@ go get gorm.io/driver/sqlite
 go get modernc.org/sqlite
 go get github.com/gofiber/fiber/v2/middleware/cors
 go get -u gorm.io/driver/mysql
+go get github.com/joho/godotenv
 go mod tidy
 
 #
