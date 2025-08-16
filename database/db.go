@@ -13,13 +13,16 @@ import (
 var DB *gorm.DB
 
 func ConnectDB() (*gorm.DB, error) {
-    // Load .env file
-    err := godotenv.Load()
-    if err != nil {
-        fmt.Println("Warning: .env file not found, relying on system environment variables")
+    env := os.Getenv("APP_ENV")
+    if env == "" {
+        env = "development"
     }
 
-    // Read environment variables
+    err := godotenv.Load(".env." + env)
+    if err != nil {
+        fmt.Printf("Warning: .env.%s file not found, relying on system environment variables\n", env)
+    }
+
     user := os.Getenv("DB_USER")
     pass := os.Getenv("DB_PASS")
     host := os.Getenv("DB_HOST")
@@ -34,7 +37,6 @@ func ConnectDB() (*gorm.DB, error) {
         return nil, err
     }
 
-    // Auto-migrate models
     err = db.AutoMigrate(&models.Author{}, &models.Book{})
     if err != nil {
         return nil, err
